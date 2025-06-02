@@ -1,11 +1,37 @@
 from konlpy.tag import Okt
+from typing import List, Set
 
 okt = Okt()
 
-def normalize_tags(tags: list[str]) -> list[str]:
-    normalized = []
+def _is_dev_term(tag: str) -> bool:
+    """개발 용어인지 확인"""
+    dev_terms = {
+        "Spring Boot", "JPA", "React", "Next.js", "Django", "Flask",
+        "PyTorch", "TensorFlow", "Node.js", "Express", "Vue.js", "Angular",
+        "Python", "Java", "JavaScript", "TypeScript", "Go", "Rust", "C++", "Kotlin",
+        "REST API", "GraphQL", "OAuth2", "JWT", "Docker", "Kubernetes",
+        "CI/CD", "Git", "AWS", "Azure", "GCP", "MongoDB", "Redis", "MySQL",
+        "PostgreSQL", "Kafka", "RabbitMQ", "WebSocket", "gRPC"
+    }
+    return tag in dev_terms
+
+def normalize_tags(tags: List[str]) -> List[str]:
+    """태그 정규화
+    - 개발 용어는 그대로 보존
+    - 일반 키워드는 명사 추출 후 정규화
+    """
+    normalized: Set[str] = set()
+    
     for tag in tags:
+        # 개발 용어는 그대로 유지
+        if _is_dev_term(tag):
+            normalized.add(tag)
+            continue
+            
+        # 일반 키워드는 명사 추출
         nouns = okt.nouns(tag)
         if nouns:
-            normalized.append(nouns[0])  # 대표 명사 하나만 사용
-    return sorted(set(normalized))
+            # 2음절 이상의 명사만 추가
+            normalized.update(noun for noun in nouns if len(noun) >= 2)
+    
+    return sorted(normalized)

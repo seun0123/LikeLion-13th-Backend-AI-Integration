@@ -2,8 +2,8 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 class GeneralKeywordGenerator:
     def __init__(self):
-        self.tokenizer = AutoTokenizer.from_pretrained("ml6team/keyphrase-generation-t5-small-openkp")
-        self.model = AutoModelForSeq2SeqLM.from_pretrained("ml6team/keyphrase-generation-t5-small-openkp")
+        self.tokenizer = AutoTokenizer.from_pretrained("MaRiOrOsSi/keyphrase-generation-t5-small-kpTimes")
+        self.model = AutoModelForSeq2SeqLM.from_pretrained("MaRiOrOsSi/keyphrase-generation-t5-small-kpTimes")
 
     def extract(self, text: str, max_len: int = 512) -> list:
         input_text = f"extract keyphrases: {text}"

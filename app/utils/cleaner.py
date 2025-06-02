@@ -1,30 +1,59 @@
 def clean_tags(tags: list[str]) -> list[str]:
-    ignore = {"extract keyphrases", "keywords", "none"}
+    """태그 정제
+    - 불용어 제거
+    - 최소 길이 확인
+    - 중복 제거
+    - 개발 용어 우선 처리
+    """
+    # 불용어 및 제외할 패턴
+    ignore = {
+        # 시스템 관련
+        "extract keyphrases", "keywords", "none",
+        
+        # 조사
+        "를", "을", "이", "가", "은", "는", "로", "으로",
+        "의", "에", "에서", "과", "와", "도",
+        
+        # 의미없는 일반 단어
+        "정말", "매우", "아주", "너무", "참", "약간", "조금",
+        "보고", "보다", "보면", "보니", "봤다", "보자",
+        "먹고", "먹다", "먹은", "먹을", "먹자",
+        "하고", "하다", "했다", "하자", "하면", "하니",
+        "있다", "있고", "있는", "있을", "있어",
+        "같다", "같은", "같이", "같아",
+        "되다", "되고", "되는", "되면", "되어",
+        
+        # 시간 관련
+        "오늘", "내일", "모레", "어제", "그제",
+        "지금", "이제", "방금", "아까", "조금",
+        "아침", "점심", "저녁", "밤", "새벽",
+        
+        # 감정 표현
+        "좋다", "좋은", "좋아", "좋고",
+        "싫다", "싫은", "싫어", "싫고",
+        "행복", "슬픔", "기쁨", "즐거움",
+        
+        # 기타 일반적인 동사/형용사
+        "가다", "오다", "다니다", "다녀왔다",
+        "많다", "적다", "크다", "작다"
+    }
+    
     cleaned = []
-
-    # 1차 정제: 불용어 제거, 소문자화, 기호 제거
+    
+    # 1차 정제: 불용어 제거, 기호 제거
     for tag in tags:
-        tag = tag.strip().strip(".,;:").lower()
-        if len(tag) >= 2 and tag not in ignore:
-            formatted = " ".join([w.capitalize() for w in tag.split()])
-            cleaned.append(formatted)
-
-    # 중복 제거
+        tag = tag.strip().strip(".,;:").strip()
+        
+        # 최소 길이 확인 (2글자 이상) 및 불용어 제외
+        if len(tag) >= 2 and tag.lower() not in ignore:
+            # 개발 용어는 원래 형식 유지
+            if any(char.isupper() for char in tag):
+                cleaned.append(tag)
+            else:
+                # 일반 키워드는 첫 글자만 대문자로
+                cleaned.append(tag.capitalize())
+    
+    # 중복 제거 및 정렬
     unique_tags = sorted(set(cleaned))
-
-    # 복합태그 제거: 기존 단일 태그의 조합만으로 된 복합어는 제거
-    base_words = set()
-    for tag in unique_tags:
-        if len(tag.split()) == 1:
-            base_words.add(tag.lower())
-
-    final_tags = []
-    for tag in unique_tags:
-        words = tag.lower().split()
-        if len(words) == 1:
-            final_tags.append(tag)
-        else:
-            if not all(word in base_words for word in words):
-                final_tags.append(tag)
-
-    return final_tags
+    
+    return unique_tags
