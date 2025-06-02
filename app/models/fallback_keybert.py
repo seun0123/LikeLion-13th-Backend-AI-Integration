@@ -15,18 +15,32 @@ class KeywordExtractor:
         # 텍스트 정규화 (이모티콘, 반복 문자 등 처리)
         normalized = self.okt.normalize(text)
         
-        # 품사 태깅 후 의미있는 명사만 추출
+        # 품사 태깅
         tagged = self.okt.pos(normalized, stem=True)
         
-        # 제외할 단어들
-        stop_words = {'정말', '매우', '너무', '아주', '잘', '곧', '참', '자주', '이제', '계속', '다시', '이미', '벌써'}
+        # 제외할 단어들 (불용어)
+        stop_words = {
+            # 부사
+            '정말', '매우', '너무', '아주', '잘', '곧', '참', '자주', '이제', '계속', '다시', '이미', '벌써',
+            # 동사/형용사 활용형으로 자주 쓰이는 단어
+            '타고', '보고', '먹고', '가고', '오고', '되고', '하고',
+            # 기타 불용어
+            '그것', '이것', '저것', '그런', '이런', '저런', '이번', '다음'
+        }
         
-        nouns = [word for word, pos in tagged 
-                if (pos == 'Noun'  # 일반 명사
-                    and not word.endswith(('요', '죠', '네', '데', '게'))  # 동사/형용사 활용형 제외
-                    and not (len(word) <= 2 and word.endswith(('이', '것', '수', '데', '말')))  # 조사/어미로 쓰이는 짧은 단어 제외
-                    and word not in stop_words  # 불용어 제외
-                    and len(word) >= 2)]  # 2글자 이상
+        nouns = []
+        for word, pos in tagged:
+            # 명사이면서
+            if pos == 'Noun':
+                # 불용어가 아니고
+                if word not in stop_words:
+                    # 동사/형용사 활용형으로 끝나지 않고
+                    if not word.endswith(('하다', '되다', '있다', '없다', '요', '죠', '네', '데', '게')):
+                        # 조사/어미로 쓰이는 짧은 단어가 아니면서
+                        if not (len(word) <= 2 and word.endswith(('이', '것', '수', '데', '말'))):
+                            # 2글자 이상이면 추가
+                            if len(word) >= 2:
+                                nouns.append(word)
         
         return sorted(set(nouns))  # 중복 제거 및 정렬
         
@@ -34,11 +48,11 @@ class KeywordExtractor:
         # 키워드 추출 with MMR (Maximal Marginal Relevance)
         keywords = self.model.extract_keywords(
             text,
-            keyphrase_ngram_range=(1, 2),  # 1-2개 단어 키워드 추출
-            stop_words='english',  # 영어 불용어 제거
+            keyphrase_ngram_range=(1, 2),
+            stop_words='english',
             top_n=top_n,
-            diversity=diversity,  # MMR diversity 파라미터
-            use_maxsum=True,  # MaxSum 알고리즘 사용
+            diversity=diversity,
+            use_maxsum=True,
         )
         
         # 키워드에서 명사만 추출
