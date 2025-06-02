@@ -1,2 +1,2 @@
-def merge_tags(general_tags: list, dev_tags: list) -> list:
-    return sorted(set(general_tags + dev_tags))
+def merge_tags(tags: list[str]) -> list[str]:
+    return sorted(set(tags))
