@@ -16,10 +16,6 @@ def _is_dev_term(tag: str) -> bool:
     return tag in dev_terms
 
 def normalize_tags(tags: List[str]) -> List[str]:
-    """태그 정규화
-    - 개발 용어는 그대로 보존
-    - 일반 키워드는 명사 추출 후 정규화
-    """
     normalized: Set[str] = set()
     
     for tag in tags:

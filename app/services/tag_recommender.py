@@ -1,4 +1,3 @@
-from app.models.general_model import GeneralKeywordGenerator
 from app.models.fallback_keybert import KeywordExtractor
 from app.rules.dev_tag_matcher import DevTagMatcher
 from app.utils.tag_merger import merge_tags
@@ -14,11 +13,11 @@ class TagRecommenderService:
     def recommend_tags(self, content: str) -> List[str]:
         print(f"[입력] {content}")
         
-        # 1. 개발 용어 매칭 (정확도 높은 매칭 우선)
+        # 1. 개발 용어 매칭
         dev_tags = self.dev_matcher.extract(content)
         print(f"[개발용어] {dev_tags}")
         
-        # 2. 일반 키워드 추출 (KeyBERT)
+        # 2. 일반 키워드 추출
         general_tags = self.keyword_extractor.extract(content, top_n=5)
         print(f"[일반키워드] {general_tags}")
         

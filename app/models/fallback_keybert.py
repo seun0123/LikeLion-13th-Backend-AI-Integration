@@ -5,14 +5,12 @@ from konlpy.tag import Okt
 
 class KeywordExtractor:
     def __init__(self):
-        # 다국어 지원을 위한 모델 선택
         self.model = KeyBERT(model='paraphrase-multilingual-mpnet-base-v2')
         self.min_score = 0.3  # 최소 유사도 점수
         self.okt = Okt()
         
     def _extract_nouns(self, text: str) -> List[str]:
-        """명사만 추출"""
-        # 텍스트 정규화 (이모티콘, 반복 문자 등 처리)
+        # 텍스트 정규화
         normalized = self.okt.normalize(text)
         
         # 품사 태깅
@@ -65,7 +63,6 @@ class KeywordExtractor:
         return sorted(cleaned_keywords)
 
     def extract_with_scores(self, text: str, top_n: int = 10) -> List[Tuple[str, float]]:
-        """스코어와 함께 키워드 반환 (디버깅용)"""
         keywords = self.model.extract_keywords(
             text,
             keyphrase_ngram_range=(1, 2),
