@@ -8,7 +8,7 @@ recommender = TagRecommenderService()
 class ContentRequest(BaseModel):
     contents: str
 
-@app.post("/recommend-tags")
+@app.post("/tag/recommendations")
 def recommend_tags(request: ContentRequest):
     tags = recommender.recommend_tags(request.contents)
     return {"tags": tags}
