@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from app.services.tag_recommender import TagRecommenderService
+from tag_recommender import TagRecommenderService
 
 app = FastAPI()
 recommender = TagRecommenderService()
